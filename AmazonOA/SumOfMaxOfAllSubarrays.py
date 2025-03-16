@@ -11,32 +11,35 @@ from typing import List
 # 5, [2,3,1,4,2] -> 4
 # 3, [1,2,7] -> 3
 
-def sumOfMaxOfAllSubarrays(nums: List[int]) -> int:
-    l = len(nums)
-    left = [-1] * l
-    right = [l] * l
-    stk = []
-    for i in range(l):
-        while stk and nums[stk[-1]] < nums[i]:
-            stk.pop()
-        if stk:
-            left[i] = stk[-1]
-        stk.append(i)
-    stk.clear()
-    for i in range(l-1, -1, -1):
-        while stk and nums[stk[-1]] <= nums[i]:
-            stk.pop()
-        if stk:
-            right[i] = stk[-1]
-        stk.append(i)
-    mod = int(1e9)+7
-    res = 0
-    for i in range(l):
-        temp = (i - left[i]) * (right[i] - i) % mod
-        temp = (temp * (temp + 1)) / 2
-        res += temp * nums[i] % mod
-        res %= mod
-    return int(res)
+def sumOfMaxOfAllSubarrays(arr):
+    n = len(arr)
+    
+    # Arrays to store contribution counts
+    left = [0] * n
+    right = [0] * n
+    
+    # Monotonic increasing stack (for left counts)
+    stack = []
+    for i in range(n):
+        while stack and arr[stack[-1]] < arr[i]:
+            stack.pop()
+        left[i] = i - stack[-1] if stack else i + 1
+        stack.append(i)
+    
+    # Monotonic increasing stack (for right counts)
+    stack = []
+    for i in range(n - 1, -1, -1):
+        while stack and arr[stack[-1]] <= arr[i]:
+            stack.pop()
+        right[i] = stack[-1] - i if stack else n - i
+        stack.append(i)
+    
+    # Compute the sum of contributions
+    result = 0
+    for i in range(n):
+        result += arr[i] * left[i] * right[i]
+    
+    return result
 
 def main():
     n = int(input())
